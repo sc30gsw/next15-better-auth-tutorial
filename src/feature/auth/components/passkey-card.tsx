@@ -1,10 +1,11 @@
 'use client'
 
-import { IconCirclePlus, IconKey } from 'justd-icons'
+import { IconCirclePlus } from 'justd-icons'
 import { useRouter } from 'next/navigation'
-import React, { useTransition, type ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Card } from '~/components/justd/ui'
+import { passKeyAction } from '~/feature/auth/actions/pass-key-action'
 import { PasskeyButton } from '~/feature/auth/components/passkey-button'
 import { authClient } from '~/lib/auth/auth-client'
 
@@ -32,7 +33,7 @@ export function PasskeyCard({
 
             toast.success('Passkey added successfully')
 
-            router.push('/')
+            passKeyAction()
           }}
         />
       </Card.Content>
