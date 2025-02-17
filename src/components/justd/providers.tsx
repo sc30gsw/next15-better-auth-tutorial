@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { NuqsAdapter } from 'nuqs/adapters/next'
 import { RouterProvider } from 'react-aria-components'
 import { ThemeProvider } from '~/components/justd/theme-provider'
 import { Toast } from '~/components/justd/ui'
@@ -19,8 +20,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <RouterProvider navigate={router.push}>
       <ThemeProvider enableSystem attribute="class">
-        <Toast />
-        {children}
+        <NuqsAdapter>
+          <Toast />
+          {children}
+        </NuqsAdapter>
       </ThemeProvider>
     </RouterProvider>
   )

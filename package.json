@@ -22,9 +22,11 @@
     "drizzle-orm": "^0.39.3",
     "justd-icons": "^1.10.25",
     "next": "15.1.7",
+    "nuqs": "^2.3.2",
     "react": "^19.0.0",
     "react-aria-components": "^1.6.0",
     "react-dom": "^19.0.0",
+    "server-only": "^0.0.1",
     "sonner": "^1.7.4"
   },
   "devDependencies": {
