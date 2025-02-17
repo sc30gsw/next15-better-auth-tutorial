@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
+import type { ReactNode } from 'react'
 import { Providers } from '~/components/justd/providers'
 
 const geistSans = Geist({
@@ -20,8 +21,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  alert,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode
+  alert: ReactNode
 }>) {
   return (
     <html lang="ja">
@@ -30,6 +33,7 @@ export default function RootLayout({
       >
         <Providers>
           <main className="min-h-dvh min-w-fit max-w-svw">{children}</main>
+          {alert}
         </Providers>
       </body>
     </html>
