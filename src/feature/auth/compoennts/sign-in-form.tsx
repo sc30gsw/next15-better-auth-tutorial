@@ -7,40 +7,40 @@ import { useRouter } from 'next/navigation'
 import React, { useActionState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button, Card, Form, Loader, TextField } from '~/components/justd/ui'
-import { signUpAction } from '~/feature/auth/actions/sign-up-action'
+import { signInAction } from '~/feature/auth/actions/sign-in-action'
 import {
-  type SignUpInputSchema,
-  signUpInputSchema,
-} from '~/feature/auth/types/schemas/sign-up-input-schema'
+  type SignInInputSchema,
+  signInInputSchema,
+} from '~/feature/auth/types/schemas/sign-in-input-schema'
+
 import { useSafeForm } from '~/hooks/use-safe-form'
 
-export function SignUpForm({
+export function SignInForm({
   children,
-  haveAccountArea,
-}: { children: ReactNode; haveAccountArea: ReactNode }) {
+  notHaveAccountArea,
+}: { children: ReactNode; notHaveAccountArea: ReactNode }) {
   const router = useRouter()
 
   const [lastResult, action, isPending] = useActionState<
-    Awaited<ReturnType<typeof signUpAction>> | null,
+    Awaited<ReturnType<typeof signInAction>> | null,
     FormData
   >(async (prev, formData) => {
-    const result = await signUpAction(prev, formData)
+    const result = await signInAction(prev, formData)
     if (result.status === 'success') {
-      toast.success('Sign up successful')
+      toast.success('Sign in successful')
       router.push('/')
     }
 
     return result
   }, null)
 
-  const [form, fields] = useSafeForm<SignUpInputSchema>({
-    constraint: getZodConstraint(signUpInputSchema),
+  const [form, fields] = useSafeForm<SignInInputSchema>({
+    constraint: getZodConstraint(signInInputSchema),
     lastResult,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: signUpInputSchema })
+      return parseWithZod(formData, { schema: signInInputSchema })
     },
     defaultValue: {
-      name: '',
       email: '',
       password: '',
     },
@@ -57,7 +57,6 @@ export function SignUpForm({
   return (
     <Card className="mx-auto w-full max-w-md">
       {children}
-
       <Form
         {...getFormProps(form)}
         action={action}
@@ -70,17 +69,6 @@ export function SignUpForm({
               <p>{getError()}</p>
             </div>
           )}
-          <div>
-            <TextField
-              {...getInputProps(fields.name, { type: 'text' })}
-              placeholder="Name"
-              isDisabled={isPending}
-              errorMessage={''}
-            />
-            <span id={fields.name.errorId} className="text-sm text-red-500">
-              {fields.name.errors}
-            </span>
-          </div>
           <div>
             <TextField
               {...getInputProps(fields.email, { type: 'email' })}
@@ -110,10 +98,10 @@ export function SignUpForm({
             className="w-full relative"
             isDisabled={isPending}
           >
-            Sign Up
+            Sign In
             {isPending && <Loader className="absolute top-3 right-2" />}
           </Button>
-          {haveAccountArea}
+          {notHaveAccountArea}
         </Card.Footer>
       </Form>
     </Card>

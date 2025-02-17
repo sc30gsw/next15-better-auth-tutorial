@@ -2,31 +2,19 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import { APIError } from 'better-auth/api'
-import { signUpInputSchema } from '~/feature/auth/types/schemas/sign-up-input-schema'
+import { signInInputSchema } from '~/feature/auth/types/schemas/sign-in-input-schema'
 import { auth } from '~/lib/auth/auth'
-import { db } from '~/lib/db/db'
 
-export const signUpAction = async (_: unknown, formData: FormData) => {
-  const submission = parseWithZod(formData, { schema: signUpInputSchema })
+export const signInAction = async (_: unknown, formData: FormData) => {
+  const submission = parseWithZod(formData, { schema: signInInputSchema })
 
   if (submission.status !== 'success') {
     return submission.reply()
   }
 
   try {
-    const existingUser = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.email, submission.value.email),
-    })
-
-    if (existingUser) {
-      return submission.reply({
-        fieldErrors: { message: ['Email or Name already in use'] },
-      })
-    }
-
-    await auth.api.signUpEmail({
+    await auth.api.signInEmail({
       body: {
-        name: submission.value.name,
         email: submission.value.email,
         password: submission.value.password,
       },
