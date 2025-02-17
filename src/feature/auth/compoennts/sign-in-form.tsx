@@ -2,11 +2,12 @@
 
 import { getFormProps, getInputProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { IconTriangleExclamation } from 'justd-icons'
+import { IconBrandGithub, IconTriangleExclamation } from 'justd-icons'
 import { useRouter } from 'next/navigation'
-import React, { useActionState, type ReactNode } from 'react'
+import React, { useActionState, useTransition, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button, Card, Form, Loader, TextField } from '~/components/justd/ui'
+import { oauthSignInAction } from '~/feature/auth/actions/oauth-sign-in-action'
 import { signInAction } from '~/feature/auth/actions/sign-in-action'
 import {
   type SignInInputSchema,
@@ -14,6 +15,7 @@ import {
 } from '~/feature/auth/types/schemas/sign-in-input-schema'
 
 import { useSafeForm } from '~/hooks/use-safe-form'
+import { authClient } from '~/lib/auth/auth-client'
 
 export function SignInForm({
   children,
@@ -21,6 +23,7 @@ export function SignInForm({
 }: { children: ReactNode; notHaveAccountArea: ReactNode }) {
   const router = useRouter()
 
+  const [isOauthSignInPending, startTransition] = useTransition()
   const [lastResult, action, isPending] = useActionState<
     Awaited<ReturnType<typeof signInAction>> | null,
     FormData
@@ -96,10 +99,29 @@ export function SignInForm({
           <Button
             type="submit"
             className="w-full relative"
-            isDisabled={isPending}
+            isDisabled={isPending || isOauthSignInPending}
           >
             Sign In
             {isPending && <Loader className="absolute top-3 right-2" />}
+          </Button>
+          <Button
+            intent="secondary"
+            className="w-full relative"
+            isDisabled={isPending || isOauthSignInPending}
+            onPress={() => {
+              startTransition(async () => {
+                const data = await authClient.signIn.social({
+                  provider: 'github',
+                  callbackURL: '/',
+                })
+              })
+            }}
+          >
+            <IconBrandGithub />
+            Sign In with GitHub
+            {isOauthSignInPending && (
+              <Loader className="absolute top-3 right-2" />
+            )}
           </Button>
           {notHaveAccountArea}
         </Card.Footer>
