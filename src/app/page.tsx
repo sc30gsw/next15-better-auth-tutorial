@@ -36,6 +36,7 @@ export default async function Home({
       </div>
     )
   }
+
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-y-2">
       {session?.user.id}
