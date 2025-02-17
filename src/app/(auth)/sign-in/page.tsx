@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 import { Card } from '~/components/justd/ui'
-import { SignInForm } from '~/feature/auth/compoennts/sign-in-form'
+import { SignInForm } from '~/feature/auth/components/sign-in-form'
 
 const SignInPage = () => {
   return (

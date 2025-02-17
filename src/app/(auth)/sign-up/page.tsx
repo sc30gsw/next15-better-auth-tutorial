@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 import { Card } from '~/components/justd/ui'
-import { SignUpForm } from '~/feature/auth/compoennts/sign-up-form'
+import { SignUpForm } from '~/feature/auth/components/sign-up-form'
 
 export default function SignUpPage() {
   return (

@@ -7,43 +7,49 @@ import { useRouter } from 'next/navigation'
 import React, { useActionState, useTransition, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button, Card, Form, Loader, TextField } from '~/components/justd/ui'
-import { oauthSignInAction } from '~/feature/auth/actions/oauth-sign-in-action'
-import { signInAction } from '~/feature/auth/actions/sign-in-action'
+import { signUpAction } from '~/feature/auth/actions/sign-up-action'
 import {
-  type SignInInputSchema,
-  signInInputSchema,
-} from '~/feature/auth/types/schemas/sign-in-input-schema'
-
+  type SignUpInputSchema,
+  signUpInputSchema,
+} from '~/feature/auth/types/schemas/sign-up-input-schema'
 import { useSafeForm } from '~/hooks/use-safe-form'
 import { authClient } from '~/lib/auth/auth-client'
 
-export function SignInForm({
+export function SignUpForm({
   children,
-  notHaveAccountArea,
-}: { children: ReactNode; notHaveAccountArea: ReactNode }) {
+  haveAccountArea,
+}: { children: ReactNode; haveAccountArea: ReactNode }) {
   const router = useRouter()
 
-  const [isOauthSignInPending, startTransition] = useTransition()
+  const [isSignInPending, startTransition] = useTransition()
   const [lastResult, action, isPending] = useActionState<
-    Awaited<ReturnType<typeof signInAction>> | null,
+    Awaited<ReturnType<typeof signUpAction>> | null,
     FormData
   >(async (prev, formData) => {
-    const result = await signInAction(prev, formData)
+    const result = await signUpAction(prev, formData)
     if (result.status === 'success') {
-      toast.success('Sign in successful')
+      toast.success('Sign up successful', {
+        action: {
+          label: 'Do you want to register passkey?',
+          onClick: () => {
+            router.push('/?isPassKey=true')
+          },
+        },
+      })
       router.push('/')
     }
 
     return result
   }, null)
 
-  const [form, fields] = useSafeForm<SignInInputSchema>({
-    constraint: getZodConstraint(signInInputSchema),
+  const [form, fields] = useSafeForm<SignUpInputSchema>({
+    constraint: getZodConstraint(signUpInputSchema),
     lastResult,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: signInInputSchema })
+      return parseWithZod(formData, { schema: signUpInputSchema })
     },
     defaultValue: {
+      name: '',
       email: '',
       password: '',
     },
@@ -60,6 +66,7 @@ export function SignInForm({
   return (
     <Card className="mx-auto w-full max-w-md">
       {children}
+
       <Form
         {...getFormProps(form)}
         action={action}
@@ -74,9 +81,20 @@ export function SignInForm({
           )}
           <div>
             <TextField
+              {...getInputProps(fields.name, { type: 'text' })}
+              placeholder="Name"
+              isDisabled={isPending || isSignInPending}
+              errorMessage={''}
+            />
+            <span id={fields.name.errorId} className="text-sm text-red-500">
+              {fields.name.errors}
+            </span>
+          </div>
+          <div>
+            <TextField
               {...getInputProps(fields.email, { type: 'email' })}
               placeholder="Email"
-              isDisabled={isPending}
+              isDisabled={isPending || isSignInPending}
               errorMessage={''}
             />
             <span id={fields.email.errorId} className="text-sm text-red-500">
@@ -87,7 +105,7 @@ export function SignInForm({
             <TextField
               {...getInputProps(fields.password, { type: 'password' })}
               placeholder="Password"
-              isDisabled={isPending}
+              isDisabled={isPending || isSignInPending}
               errorMessage={''}
             />
             <span id={fields.password.errorId} className="text-sm text-red-500">
@@ -95,35 +113,33 @@ export function SignInForm({
             </span>
           </div>
         </Card.Content>
-        <Card.Footer className="flex flex-col items-start gap-y-2 w-full">
+        <Card.Footer className="flex flex-col items-start gap-y-4 w-full">
           <Button
             type="submit"
             className="w-full relative"
-            isDisabled={isPending || isOauthSignInPending}
+            isDisabled={isPending || isSignInPending}
           >
-            Sign In
+            Sign Up
             {isPending && <Loader className="absolute top-3 right-2" />}
           </Button>
           <Button
             intent="secondary"
             className="w-full relative"
-            isDisabled={isPending || isOauthSignInPending}
+            isDisabled={isPending || isSignInPending}
             onPress={() => {
               startTransition(async () => {
                 const data = await authClient.signIn.social({
                   provider: 'github',
-                  callbackURL: '/',
+                  callbackURL: '/?isPassKey=true',
                 })
               })
             }}
           >
             <IconBrandGithub />
             Sign In with GitHub
-            {isOauthSignInPending && (
-              <Loader className="absolute top-3 right-2" />
-            )}
+            {isSignInPending && <Loader className="absolute top-3 right-2" />}
           </Button>
-          {notHaveAccountArea}
+          {haveAccountArea}
         </Card.Footer>
       </Form>
     </Card>
