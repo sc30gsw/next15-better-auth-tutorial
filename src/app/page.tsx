@@ -15,6 +15,7 @@ async function getPassKey() {
     (typeof client.api)['pass-keys']['$get'],
     200
   >
+
   const url = client.api['pass-keys'].$url()
   const res = await fetcher<ResType>(url, {
     headers: {
