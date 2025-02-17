@@ -8,6 +8,34 @@
       "when": 1739759815380,
       "tag": "0000_faithful_magneto",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1739760379764,
+      "tag": "0001_nebulous_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1739767313352,
+      "tag": "0002_abnormal_tag",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1739767587350,
+      "tag": "0003_square_kat_farrell",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1739769209441,
+      "tag": "0004_keen_junta",
+      "breakpoints": true
     }
   ]
 }

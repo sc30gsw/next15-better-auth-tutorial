@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `hashed_password` text NOT NULL;
