@@ -1,0 +1,96 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": []
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "space"
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"semicolons": "asNeeded"
+		}
+	},
+	"overrides": [
+		{
+			"include": [
+				"next.config.ts",
+				"tailwind.config.ts",
+				"postcss.config.mjs",
+				"layout.tsx",
+				"page.tsx",
+				"loading.tsx",
+				"error.tsx",
+				"not-found.tsx",
+				"middleware.ts",
+				"default.tsx",
+				"./src/features/**/*/route.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": [
+				"env.ts",
+				"tailwind.config.ts",
+				"./src/features/**/types/schema/*.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": ["./src/features/**/actions/*.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"useAwait": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": ["use-safe-form.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": { "noExplicitAny": "off" }
+				}
+			}
+		},
+		{
+			"include": ["./src/components/ui/*.tsx"],
+			"linter": {
+				"rules": {
+					"correctness": { "noUndeclaredDependencies": "off" },
+					"style": { "noNamespaceImport": "off" }
+				}
+			}
+		}
+	]
+}
