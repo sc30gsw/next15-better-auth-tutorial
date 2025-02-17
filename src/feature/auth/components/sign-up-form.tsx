@@ -36,7 +36,7 @@ export function SignUpForm({
           },
         },
       })
-      router.push('/')
+      router.push('/two-factor')
     }
 
     return result

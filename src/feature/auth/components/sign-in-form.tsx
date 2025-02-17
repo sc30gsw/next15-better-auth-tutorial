@@ -25,18 +25,7 @@ export function SignInForm({
 
   const [isPasskeyPending, startPassKyeTransition] = useTransition()
   const [isOauthSignInPending, startTransition] = useTransition()
-  const [lastResult, action, isPending] = useActionState<
-    Awaited<ReturnType<typeof signInAction>> | null,
-    FormData
-  >(async (prev, formData) => {
-    const result = await signInAction(prev, formData)
-    if (result.status === 'success') {
-      toast.success('Sign in successful')
-      router.push('/?isPassKey=true')
-    }
-
-    return result
-  }, null)
+  const [lastResult, action, isPending] = useActionState(signInAction, null)
 
   const [form, fields] = useSafeForm<SignInInputSchema>({
     constraint: getZodConstraint(signInInputSchema),

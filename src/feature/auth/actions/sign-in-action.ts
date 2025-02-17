@@ -2,6 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import { APIError } from 'better-auth/api'
+import { redirect } from 'next/navigation'
 import { signInInputSchema } from '~/feature/auth/types/schemas/sign-in-input-schema'
 import { auth } from '~/lib/auth/auth'
 
@@ -20,12 +21,18 @@ export const signInAction = async (_: unknown, formData: FormData) => {
       },
     })
 
-    return submission.reply()
+    redirect('/two-factor')
   } catch (err) {
     if (err instanceof APIError) {
       return submission.reply({
         fieldErrors: { message: [err.body.message ?? 'Something went wrong'] },
       })
+    }
+
+    if (err instanceof Error) {
+      if (err.message === 'NEXT_REDIRECT') {
+        redirect('/two-factor')
+      }
     }
 
     return submission.reply({
