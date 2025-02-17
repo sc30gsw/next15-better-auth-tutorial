@@ -1,74 +1,14 @@
 'use client'
 
 import { getFormProps, getInputProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { IconKey } from 'justd-icons'
-import { useRouter } from 'next/navigation'
-import React, { useActionState, type ReactNode } from 'react'
-import { toast } from 'sonner'
-import {
-  Button,
-  Card,
-  Form,
-  InputOTP,
-  Loader,
-  TextField,
-} from '~/components/justd/ui'
-import { twoFactorEnableAction } from '~/feature/auth/actions/two-factor-enable-action'
-import {
-  type TwoFactorInputSchema,
-  twoFactorInputSchema,
-} from '~/feature/auth/types/schemas/two-factor-input-schema'
-import { useSafeForm } from '~/hooks/use-safe-form'
-import { authClient } from '~/lib/auth/auth-client'
+import type { ReactNode } from 'react'
+import { Button, Card, Form, Loader, TextField } from '~/components/justd/ui'
+
+import { useTwoFactor } from '~/feature/auth/hooks/use-two-factor'
 
 export function TwoFactorForm({ children }: { children: ReactNode }) {
-  const router = useRouter()
-
-  const [lastResult, action, isPending] = useActionState<
-    Awaited<ReturnType<typeof twoFactorEnableAction> | null>,
-    FormData
-  >(async (prev, formData) => {
-    const result = await twoFactorEnableAction(prev, formData)
-
-    if (result.status === 'success') {
-      const res = await authClient.twoFactor.enable({
-        password: result.initialValue?.password.toString() ?? '',
-      })
-
-      if (res.error) {
-        toast.error('Something went wrong')
-
-        return null
-      }
-
-      const { error } = await authClient.twoFactor.sendOtp()
-
-      if (error) {
-        toast.error('Something went wrong')
-
-        return null
-      }
-
-      toast.success('Send your OTP to your email')
-      router.refresh()
-
-      return null
-    }
-
-    return result
-  }, null)
-
-  const [form, fields] = useSafeForm<TwoFactorInputSchema>({
-    constraint: getZodConstraint(twoFactorInputSchema),
-    lastResult,
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: twoFactorInputSchema })
-    },
-    defaultValue: {
-      password: '',
-    },
-  })
+  const { form, fields, action, isPending } = useTwoFactor()
 
   return (
     <Card className="mx-auto w-full max-w-md">

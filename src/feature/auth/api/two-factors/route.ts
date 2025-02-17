@@ -1,4 +1,3 @@
-import { desc, eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { sessionMiddleware } from '~/lib/auth/session-middleware'
 import { db } from '~/lib/db/db'
