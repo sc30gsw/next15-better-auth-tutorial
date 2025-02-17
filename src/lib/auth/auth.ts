@@ -4,6 +4,7 @@ import { nextCookies } from 'better-auth/next-js'
 import { twoFactor } from 'better-auth/plugins'
 import { passkey } from 'better-auth/plugins/passkey'
 import { env } from '~/env'
+import { sendTwoFactorTokenEmail } from '~/lib/auth/mail'
 import { db } from '~/lib/db/db'
 import * as schema from '~/lib/db/schema'
 
@@ -22,5 +23,15 @@ export const auth = betterAuth({
       clientSecret: env.GITHUB_CLIENT_SECRET,
     },
   },
-  plugins: [twoFactor(), passkey(), nextCookies()],
+  plugins: [
+    twoFactor({
+      otpOptions: {
+        async sendOTP({ user, otp }) {
+          await sendTwoFactorTokenEmail(user.email, otp)
+        },
+      },
+    }),
+    passkey(),
+    nextCookies(),
+  ],
 })
