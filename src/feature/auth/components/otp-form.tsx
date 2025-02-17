@@ -2,9 +2,7 @@
 
 import { IconMail } from 'justd-icons'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { parseAsBoolean, useQueryStates } from 'nuqs'
-import { useState, useTransition } from 'react'
+
 import { toast } from 'sonner'
 import { Button, InputOTP, Loader } from '~/components/justd/ui'
 import { useVerifyOtp } from '~/feature/auth/hooks/use-verify-otp'

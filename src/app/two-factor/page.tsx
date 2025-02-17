@@ -24,7 +24,7 @@ async function getTwoFactor(currentUserId: string) {
     headers: {
       Authorization: currentUserId,
     },
-    cache: 'no-store',
+    cache: 'force-cache',
     next: {
       tags: [GET_TWO_FACTOR],
     },
