@@ -24,7 +24,7 @@ export function SignOutButton() {
             fetchOptions: {
               onSuccess: () => {
                 toast.success('Signed out successfully')
-                router.push('/')
+                router.push('/sign-in')
               },
               onError: () => {
                 toast.error('Failed to sign out')
