@@ -1,51 +1,31 @@
 'use client'
 
 import { getFormProps, getInputProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { IconBrandGithub, IconKey, IconTriangleExclamation } from 'justd-icons'
-import { useRouter } from 'next/navigation'
-import React, { useActionState, useTransition, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button, Card, Form, Loader, TextField } from '~/components/justd/ui'
-import { signInAction } from '~/feature/auth/actions/sign-in-action'
-import { PasskeyButton } from '~/feature/auth/components/passkey-button'
-import {
-  type SignInInputSchema,
-  signInInputSchema,
-} from '~/feature/auth/types/schemas/sign-in-input-schema'
+import { useSignIn } from '~/feature/auth/hooks/use-sign-in'
 
-import { useSafeForm } from '~/hooks/use-safe-form'
 import { authClient } from '~/lib/auth/auth-client'
 
 export function SignInForm({
   children,
   notHaveAccountArea,
 }: { children: ReactNode; notHaveAccountArea: ReactNode }) {
-  const router = useRouter()
-
-  const [isPasskeyPending, startPassKyeTransition] = useTransition()
-  const [isOauthSignInPending, startTransition] = useTransition()
-  const [lastResult, action, isPending] = useActionState(signInAction, null)
-
-  const [form, fields] = useSafeForm<SignInInputSchema>({
-    constraint: getZodConstraint(signInInputSchema),
-    lastResult,
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: signInInputSchema })
-    },
-    defaultValue: {
-      email: '',
-      password: '',
-    },
-  })
-
-  const getError = () => {
-    if (lastResult?.error && Array.isArray(lastResult.error.message)) {
-      return lastResult.error.message.join(', ')
-    }
-
-    return
-  }
+  const {
+    form,
+    fields,
+    action,
+    getError,
+    isPending,
+    isOauthSignInPending,
+    isPasskeyPending,
+    startPassKyeTransition,
+    startTransition,
+    isAnyPending,
+    router,
+  } = useSignIn()
 
   return (
     <Card className="mx-auto w-full max-w-md">
@@ -66,7 +46,7 @@ export function SignInForm({
             <TextField
               {...getInputProps(fields.email, { type: 'email' })}
               placeholder="Email"
-              isDisabled={isPending || isOauthSignInPending || isPasskeyPending}
+              isDisabled={isAnyPending}
               errorMessage={''}
             />
             <span id={fields.email.errorId} className="text-sm text-red-500">
@@ -77,7 +57,7 @@ export function SignInForm({
             <TextField
               {...getInputProps(fields.password, { type: 'password' })}
               placeholder="Password"
-              isDisabled={isPending || isOauthSignInPending || isPasskeyPending}
+              isDisabled={isAnyPending}
               errorMessage={''}
             />
             <span id={fields.password.errorId} className="text-sm text-red-500">
@@ -89,7 +69,7 @@ export function SignInForm({
           <Button
             type="submit"
             className="w-full relative"
-            isDisabled={isPending || isOauthSignInPending || isPasskeyPending}
+            isDisabled={isAnyPending}
           >
             Sign In
             {isPending && <Loader className="absolute top-3 right-2" />}
@@ -97,12 +77,12 @@ export function SignInForm({
           <Button
             intent="secondary"
             className="w-full relative"
-            isDisabled={isPending || isOauthSignInPending || isPasskeyPending}
+            isDisabled={isAnyPending}
             onPress={() => {
               startTransition(async () => {
-                const data = await authClient.signIn.social({
+                await authClient.signIn.social({
                   provider: 'github',
-                  callbackURL: '/?isPassKey=true',
+                  callbackURL: '/',
                 })
               })
             }}
@@ -114,11 +94,10 @@ export function SignInForm({
             )}
           </Button>
           <Button
-            isDisabled={isPasskeyPending || isPending || isOauthSignInPending}
+            isDisabled={isAnyPending}
             onPress={() => {
               startPassKyeTransition(async () => {
                 const data = await authClient.signIn.passkey()
-                console.dir(data)
 
                 if (data?.error) {
                   toast.error('Failed to sign in with passkey')

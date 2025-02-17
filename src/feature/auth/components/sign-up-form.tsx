@@ -1,72 +1,30 @@
 'use client'
 
 import { getFormProps, getInputProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { IconBrandGithub, IconTriangleExclamation } from 'justd-icons'
-import { useRouter } from 'next/navigation'
-import React, { useActionState, useTransition, type ReactNode } from 'react'
-import { toast } from 'sonner'
+import type { ReactNode } from 'react'
 import { Button, Card, Form, Loader, TextField } from '~/components/justd/ui'
-import { signUpAction } from '~/feature/auth/actions/sign-up-action'
-import {
-  type SignUpInputSchema,
-  signUpInputSchema,
-} from '~/feature/auth/types/schemas/sign-up-input-schema'
-import { useSafeForm } from '~/hooks/use-safe-form'
+import { useSignUp } from '~/feature/auth/hooks/use-sign-up'
 import { authClient } from '~/lib/auth/auth-client'
 
 export function SignUpForm({
   children,
   haveAccountArea,
 }: { children: ReactNode; haveAccountArea: ReactNode }) {
-  const router = useRouter()
-
-  const [isSignInPending, startTransition] = useTransition()
-  const [lastResult, action, isPending] = useActionState<
-    Awaited<ReturnType<typeof signUpAction>> | null,
-    FormData
-  >(async (prev, formData) => {
-    const result = await signUpAction(prev, formData)
-    if (result.status === 'success') {
-      toast.success('Sign up successful', {
-        action: {
-          label: 'Do you want to register passkey?',
-          onClick: () => {
-            router.push('/?isPassKey=true')
-          },
-        },
-      })
-      router.push('/two-factor')
-    }
-
-    return result
-  }, null)
-
-  const [form, fields] = useSafeForm<SignUpInputSchema>({
-    constraint: getZodConstraint(signUpInputSchema),
-    lastResult,
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: signUpInputSchema })
-    },
-    defaultValue: {
-      name: '',
-      email: '',
-      password: '',
-    },
-  })
-
-  const getError = () => {
-    if (lastResult?.error && Array.isArray(lastResult.error.message)) {
-      return lastResult.error.message.join(', ')
-    }
-
-    return
-  }
+  const {
+    form,
+    fields,
+    action,
+    getError,
+    isPending,
+    isSignInPending,
+    isAnyPending,
+    startTransition,
+  } = useSignUp()
 
   return (
     <Card className="mx-auto w-full max-w-md">
       {children}
-
       <Form
         {...getFormProps(form)}
         action={action}
@@ -83,7 +41,7 @@ export function SignUpForm({
             <TextField
               {...getInputProps(fields.name, { type: 'text' })}
               placeholder="Name"
-              isDisabled={isPending || isSignInPending}
+              isDisabled={isAnyPending}
               errorMessage={''}
             />
             <span id={fields.name.errorId} className="text-sm text-red-500">
@@ -94,7 +52,7 @@ export function SignUpForm({
             <TextField
               {...getInputProps(fields.email, { type: 'email' })}
               placeholder="Email"
-              isDisabled={isPending || isSignInPending}
+              isDisabled={isAnyPending}
               errorMessage={''}
             />
             <span id={fields.email.errorId} className="text-sm text-red-500">
@@ -105,7 +63,7 @@ export function SignUpForm({
             <TextField
               {...getInputProps(fields.password, { type: 'password' })}
               placeholder="Password"
-              isDisabled={isPending || isSignInPending}
+              isDisabled={isAnyPending}
               errorMessage={''}
             />
             <span id={fields.password.errorId} className="text-sm text-red-500">
@@ -117,7 +75,7 @@ export function SignUpForm({
           <Button
             type="submit"
             className="w-full relative"
-            isDisabled={isPending || isSignInPending}
+            isDisabled={isAnyPending}
           >
             Sign Up
             {isPending && <Loader className="absolute top-3 right-2" />}
@@ -125,12 +83,12 @@ export function SignUpForm({
           <Button
             intent="secondary"
             className="w-full relative"
-            isDisabled={isPending || isSignInPending}
+            isDisabled={isAnyPending}
             onPress={() => {
               startTransition(async () => {
                 const data = await authClient.signIn.social({
                   provider: 'github',
-                  callbackURL: '/?isPassKey=true',
+                  callbackURL: '/',
                 })
               })
             }}
