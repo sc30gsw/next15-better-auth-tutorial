@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
@@ -97,3 +97,25 @@ export const passkeys = sqliteTable('passkeys', {
   transports: text('transports'),
   createdAt: int('created_at', { mode: 'timestamp' }),
 })
+
+// 🛠 users テーブルのリレーション定義
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+  twoFactors: many(twoFactors),
+}))
+
+// 🛠 accounts テーブルのリレーション定義
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}))
+
+// 🛠 twoFactors テーブルのリレーション定義
+export const twoFactorsRelations = relations(twoFactors, ({ one }) => ({
+  user: one(users, {
+    fields: [twoFactors.userId],
+    references: [users.id],
+  }),
+}))
