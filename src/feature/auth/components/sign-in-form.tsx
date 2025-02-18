@@ -2,9 +2,10 @@
 
 import { getFormProps, getInputProps } from '@conform-to/react'
 import { IconBrandGithub, IconKey, IconTriangleExclamation } from 'justd-icons'
-import type { ReactNode } from 'react'
+import { type ReactNode, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Button, Card, Form, Loader, TextField } from '~/components/justd/ui'
+import { SignInWithPasskeyTextField } from '~/feature/auth/components/sing-in-with-passkey-text-field'
 import { useSignIn } from '~/feature/auth/hooks/use-sign-in'
 
 import { authClient } from '~/lib/auth/auth-client'
@@ -43,10 +44,12 @@ export function SignInForm({
             </div>
           )}
           <div>
-            <TextField
-              {...getInputProps(fields.email, { type: 'email' })}
+            <SignInWithPasskeyTextField
+              metadata={fields.email}
+              options={{ type: 'email' }}
               placeholder="Email"
               isDisabled={isAnyPending}
+              autoComplete="email webauthn"
               errorMessage={''}
             />
             <span id={fields.email.errorId} className="text-sm text-red-500">
@@ -54,10 +57,12 @@ export function SignInForm({
             </span>
           </div>
           <div>
-            <TextField
-              {...getInputProps(fields.password, { type: 'password' })}
+            <SignInWithPasskeyTextField
+              metadata={fields.password}
+              options={{ type: 'password' }}
               placeholder="Password"
               isDisabled={isAnyPending}
+              autoComplete="current-password webauthn"
               errorMessage={''}
             />
             <span id={fields.password.errorId} className="text-sm text-red-500">
